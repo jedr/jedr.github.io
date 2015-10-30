@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Joda Time, Noda Time</title>
+
+		<meta name="description" content="O czasie i okolicach">
+		<meta name="author" content="Andrzej Stencel">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+				<section>
+					<h1>Joda Time/Noda Time</h1>
+					<h3>Czyli co jest nie tak z wbudowanymi typami do obsługi daty i czasu w Javie i C# i jak to naprawić</h3>
+					<p>
+						<small>Andrzej Stencel<br>
+						<a href="mailto:andrzej.stencel@docile.pl">andrzej.stencel@docile.pl</a> | 
+						<a href="http://twitter.com/devhunger">@devhunger</a></small>
+					</p>
+				</section>
+				
+        <section>
+          <h1>To miało być proste</h1>
+          <p>1 rok <span class="fragment">!</span>= 365 dni</p>
+					<p>1 doba <span class="fragment">!</span>= 24 godziny</p>
+					<p>1 godzina <span class="fragment">!</span>= 60 minut</p>
+					<p>1 minuta <span class="fragment">!</span>= 60 sekund</p>
+				</section>
+				
+				<section>
+          <h1>Ciekawostki</h1>
+          <ul style="text-align: left;">
+          <li class="fragment"><a href="https://en.wikipedia.org/wiki/Lord_Howe_Island">Lord Howe Island</a> UTC+10:30, DST+00:30</li>
+          <li class="fragment"><a href="http://www.timeanddate.com/time/zones/npt">Nepal</a> UTC+05:45</li>
+          <li class="fragment"><a href="https://en.wikipedia.org/wiki/Time_in_Malaysia">Malezja</a> UTC+07:20 w latach 1933-1941</li>
+          <li class="fragment"><a href="https://en.wikipedia.org/wiki/Time_in_Russia">Rosja</a> UTC+04:00 w latach 2011-2014, UTC+03:00 od 26.10.2014</li>
+          <li class="fragment"><a href="https://en.wikipedia.org/wiki/Time_in_Australia">Australia</a>
+          <li class="fragment"><a href="http://www.worldtimezone.com/faq.html">Inne ciekawostki</a></li>
+          </ul>
+				</section>
+				
+				<section>
+          <section>
+            <h2>Data i czas w Javie (JDK &lt; 8)</h2>
+            <p>Arytmetyka daty i czasu</p>
+            <pre><code class="java" data-trim style="font-size: 18px; text-align: left;">
+Calendar cal = Calendar.getInstance();
+cal.add(Calendar.DAY_OF_MONTH, 1);
+            </code></pre>
+  <!-- Live example:
+  * Marzec to miesiąc nr 2, październik - nr 9, styczeń nr 0.
+  - dodanie 1 dnia nie działa poprawnie
+  - dodanie 24 godzin działa poprawnie!
+  -->
+          </section>
+
+          <section>
+            <h2>Data i czas w Javie (JDK &lt; 8)</h2>
+            <p>Obliczanie różnicy między dwoma datami</p>
+            <pre><code class="java" data-trim style="font-size: 18px; text-align: left;">
+Calendar cal1 = Calendar.getInstance();
+cal1.set(2015, Calendar.DECEMBER, 31);
+Calendar cal2 = Calendar.getInstance();
+cal2.set(2014, Calendar.DECEMBER, 31);
+long diff = cal2.getTime().getTime() - cal1.getTime().getTime();
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Data i czas w Javie (JDK &lt; 8)</h2>
+            <p>Wyciągnięcie samej daty</p>
+            <pre><code class="java" data-trim style="font-size: 18px; text-align: left;">
+Calendar cal = Calendar.getInstance();
+cal.set(Calendar.HOUR_OF_DAY, 0);
+cal.set(Calendar.MINUTE, 0);
+cal.set(Calendar.SECOND, 0);
+cal.set(Calendar.MILLISECOND, 0);
+            </code></pre>
+          </section>
+				</section>
+
+        <section>
+          <h2>Data i czas w Javie (JDK &lt; 8)</h2>
+          <p><small><a href="http://docs.oracle.com/javase/7/docs/api/java/util/Calendar.html">Calendar class</a> | <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Date.html">Date class</a></small></p>
+					<p><a href="http://stackoverflow.com/questions/1571265/why-is-the-java-date-api-java-util-date-calendar-such-a-mess">Why is the Java date API such a mess?</a>
+					<p><a href="http://stackoverflow.com/questions/1969442/whats-wrong-with-java-date-time-api">What's wrong with Java Date &amp; Time API?</a></p>
+				</section>
+				
+				<section>
+          <section>
+            <h2>Data i czas w .NET (aż do dziś)</h2>
+            <p>Arytmetyka daty i czasu</p>
+            <pre><code class="c#" data-trim style="font-size: 18px; text-align: left;">
+DateTime before = new DateTime(2015, 3, 28, 2, 30, 0);
+DateTime after = dt.AddDays(1);
+            </code></pre>
+            <p class="fragment" style="color: red;">BŁĄD!</p>
+          </section>
+
+          <section>
+            <h2>Data i czas w .NET (aż do dziś)</h2>
+            <p>Arytmetyka daty i czasu (poprawnie)</p>
+            <pre><code class="c#" data-trim style="font-size: 18px; text-align: left;">
+TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+DateTime localTime = new DateTime(2015, 03, 28, 02, 30, 00);
+DateTimeOffset before = new DateTimeOffset(localTime, timeZone.GetUtcOffset(localTime));
+DateTimeOffset beforeUtc = before.ToUniversalTime();
+DateTimeOffset afterUtc = beforeUtc.AddDays(1);
+DateTimeOffset after = TimeZoneInfo.ConvertTime(afterUtc, timeZone);
+            </code></pre>
+            <p><a href="https://msdn.microsoft.com/en-us/library/bb546099%28v=vs.110%29.aspx">Performing Arithmetic Operations with Dates and Times</a></p>
+          </section>
+
+          <section>
+            <h2>Data i czas w .NET (aż do dziś)</h2>
+            <p>Obliczanie różnicy między dwoma datami</p>
+            <pre><code class="c#" data-trim style="font-size: 18px; text-align: left;">
+DateTime dt1 = new DateTime(2015, 10, 22);
+DateTime dt2 = new DateTime(2015, 10, 28);
+TimeSpan ts = dt2 - dt1;
+bool areEqual = dt1 + ts;
+            </code></pre>
+            <p><small><a href="http://stackoverflow.com/a/194889">Why doesn't Java offer operator overloading?</a></small></p>
+          </section>
+
+          <section>
+            <h2>Data i czas w .NET (aż do dziś)</h2>
+            <p>Wyciągnięcie samej daty</p>
+            <pre><code class="c#" data-trim style="font-size: 18px; text-align: left;">
+DateTime today = DateTime.Today;
+DateTime someOtherDay = new DateTime(2015, 10, 28);
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+					<p><small><a href="https://msdn.microsoft.com/en-us/library/System.DateTime%28v=vs.110%29.aspx">DateTime structure</a> | <a href="https://msdn.microsoft.com/en-us/library/system.timespan%28v=vs.110%29.aspx">TimeSpan structure</a> | <a href="https://msdn.microsoft.com/en-us/library/system.datetimeoffset%28v=vs.110%29.aspx">DateTimeOffset structure</a> | <a href="https://msdn.microsoft.com/en-us/library/system.timezoneinfo%28v=vs.110%29.aspx">TimeZoneInfo class</a></small></p>
+          <p>Arytmetyka daty i czasu w .NET ignoruje strefy czasowe</p>
+          <p><a href="http://blog.nodatime.org/2011/08/what-wrong-with-datetime-anyway.html">What's wrong with DateTime anyway?</a></p>
+				</section>
+
+        <section>
+          <section>
+            <h2>Joda Time to the rescue</h2>
+            <ul>
+              <li>Instant - Ilość milisekund od 1970-01-01 00:00:00</li>
+              <li>LocalDateTime - Data i czas bez strefy czasowej</li>
+              <li>LocalDate - Data bez czasu i bez strefy czasowej</li>
+              <li>LocalTime - Czas bez daty i bez strefy czasowej</li>
+              <li>DateTime - Data ze strefą czasową</li>
+              <li>Duration - Pewna ilość milisekund</li>
+              <li>Period - Pewna ilość lat, miesięcy i dni</li>
+              <li>Interval - Przedział czasu między dwiema datami</li>
+            </ul>
+          </section>
+        
+          <section>
+            <h2>Joda Time to the rescue</h2>
+            <p>Arytmetyka daty i czasu</p>
+            <pre><code class="java" data-trim style="font-size: 18px; text-align: left;">
+DateTime before = new DateTime(2015, 03, 28, 02, 30, 00, DateTimeZone.forID("Europe/Warsaw"));
+DateTime after = before.plusDays(1);
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Joda Time to the rescue</h2>
+            <p>Obliczanie różnicy między dwoma datami</p>
+            <pre><code class="java" data-trim style="font-size: 18px; text-align: left;">
+DateTime dt1 = new DateTime(2015, 10, 25, 0, 0);
+DateTime dt2 = new DateTime(2015, 10, 26, 0, 1);
+Duration duration = new Duration(dt1, dt2);
+System.out.println(duration.getStandardDays());
+System.out.println(duration.getStandardHours());
+System.out.println(duration.toPeriod());
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Joda Time to the rescue</h2>
+            <p>Wyciągnięcie samej daty</p>
+            <pre><code class="java" data-trim style="font-size: 18px; text-align: left;">
+LocalDate localDate = new LocalDate(2015, 10, 28);
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <h2>java.time (JDK 8)</h2>
+          <ul>
+            <li>Instant - Ilość sekund od 1970-01-01 00:00:00 oraz nanosekund</li>
+            <li>LocalDateTime - Data i czas bez strefy czasowej</li>
+            <li>LocalDate - Data bez czasu i bez strefy czasowej</li>
+            <li>LocalTime - Czas bez daty i bez strefy czasowej</li>
+            <li>ZonedDateTime - Data i czas ze strefą czasową</li>
+            <li>Duration - Pewna ilość sekund i nanosekund</li>
+            <li>Period - Pewna ilość lat, miesięcy i dni</li>
+          </ul>
+        </section>
+
+
+        <section>
+          <h2>Joda Time vs. java.time (JSR-310)</h2>
+          <p><a href="http://stackoverflow.com/questions/24631909/differences-between-java-8-date-time-api-java-time-and-joda-time">Differences between Java 8 Date Time API (java.time) and Joda-Time</a></p>
+        </section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
